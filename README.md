@@ -50,9 +50,9 @@ The map will display market locations, prices, and highlight the best price.
 
 👥 Team Members
 Name	           Role(s)	                                        GitHub
-Adrina Rayen C	 App Developer, Data/API Integrator             	@
+Adrina Rayen C	  App Developer, Data/API Integrator             	@
 Manssa Sri G	   UI Designer, GitHub Manager, PPT & Demo Creator	@ManssaSri08
-Divya B	         QA / Testing, Bug Tracking & Feedback	          @
+Divya B	          QA / Testing, Bug Tracking & Feedback	            @
 
 📫 Contact
 For issues or suggestions, contact [rayenadrina416@gmail.com].
