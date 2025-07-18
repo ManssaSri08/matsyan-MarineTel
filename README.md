@@ -43,8 +43,16 @@ On the login screen, enter any username : admin and password : 1234 to proceed.
 Select a fish type and district.
 The map will display market locations, prices, and highlight the best price.
 
+🖼️ Screenshots
+<img width="1600" height="898" alt="image" src="https://github.com/user-attachments/assets/abd35502-da2c-43ba-924f-4af78b33f3a1" />
+<img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/77dcac67-c020-4a89-8582-93b6bff62527" />
+<img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/f0d886fc-2260-4db6-86e9-b16e50f54bbf" />
+<img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/cf20ec75-4bf9-4fdc-8495-a833378d613a" />
+<img width="1600" height="850" alt="image" src="https://github.com/user-attachments/assets/7de9a16e-ff11-4431-a4c8-02a20e36aff8" />
+
+
 📺 YouTube Demo
-https://youtu.be/yvh07ds0wFo
+https://youtu.be/vFoJhl-Z37I
 
 👥 Team Members
 Name	           Role(s)	                                        GitHub
