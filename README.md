@@ -8,11 +8,11 @@ AquaRadar is a web application that tracks and compares fish prices across coast
 ## ❓ Problem Statement
 
 In many coastal regions, fish prices vary dramatically across different markets. Without centralized, accessible data:
-- Sellers may unknowingly sell for less.
+- Sellers may unknowingly sell for less profit.
 - Buyers can't find optimal prices.
 - Transparency is limited across districts.
 
-🧠 **Solution**: FishRadar fetches and displays fish prices on an interactive map, highlights the best price, and enhances market awareness.
+🧠 **Solution**: AquaRadar fetches and displays fish prices on an interactive map, highlights the best price, and enhances market awareness.
 
 ---
 
