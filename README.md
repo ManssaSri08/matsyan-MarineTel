@@ -52,7 +52,7 @@ The map will display market locations, prices, and highlight the best price.
 
 
 📺 YouTube Demo
-https://youtu.be/I-tbN6Fz3bQ
+https://youtu.be/I-tbN6Fz3bQ?si=jYO6fMSPxVeBtDuM
 
 👥 Team Members
 Name	           Role(s)	                                        GitHub
