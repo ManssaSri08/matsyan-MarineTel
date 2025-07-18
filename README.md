@@ -34,7 +34,6 @@ Category	        Technologies
 Frontend        	HTML5, CSS3, JavaScript
 Maps API	        Leaflet.js + OpenStreetMap
 UI Enhancements 	Google Fonts, Custom CSS
-Deployment	      GitHub Pages / Firebase (Optional)
 Demo            	YouTube, Screenshots, GitHub
 
 🚀 How to Run the Project
@@ -44,15 +43,14 @@ On the login screen, enter any username : admin and password : 1234 to proceed.
 Select a fish type and district.
 The map will display market locations, prices, and highlight the best price.
 
-🖼️ Screenshots
-
 📺 YouTube Demo
+https://youtu.be/yvh07ds0wFo
 
 👥 Team Members
 Name	           Role(s)	                                        GitHub
-Adrina Rayen C	  App Developer, Data/API Integrator             	@
+Adrina Rayen C	  App Developer, Data/API Integrator             	@AdrinaRayen04
 Manssa Sri G	   UI Designer, GitHub Manager, PPT & Demo Creator	@ManssaSri08
-Divya B	          QA / Testing, Bug Tracking & Feedback	            @
+Divya B	          QA / Testing, Bug Tracking & Feedback	            @divyabalaji47
 
 📫 Contact
 For issues or suggestions, contact [rayenadrina416@gmail.com].
