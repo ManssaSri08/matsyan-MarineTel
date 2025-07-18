@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fish Market App</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+  body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: url('https://images.unsplash.com/photo-1600615665607-9fe70bce3b04?auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  text-shadow: 1px 1px 2px black;
+}
+
+
+#loginPage {
+  background: linear-gradient(to right, #87cefa, #4682b4);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  color: #f0f8ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#loginPage h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 600; 
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+  color: #ffffff;
+}
+
+#loginPage input {
+  margin: 10px;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  width: 250px;
+  background-color: #f0f8ff;
+  color: #000033;
+  font-weight: 400;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+#loginPage input::placeholder {
+  color: #5f9ea0;
+}
+
+#loginPage button {
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
+  font-weight: 500; 
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
+}
+
+#loginPage button:hover {
+  background-color: #104e8b;
+}
+
+
+#appPage {
+  display: none;
+  padding: 20px;
+  background-color: #f5fffa;
+  min-height: 100vh;
+  color: #14213d;
+}
+
+h1, .title {
+  font-family: 'Segoe UI', 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 2.5rem;
+  color: #1d3557;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+
+header {
+  background-color: #0f52ba;
+  color: white;
+  padding: 1em;
+  text-align: center;
+  font-size: 1.8em;
+  font-weight: 500;
+}
+
+
+.container {
+  padding: 20px;
+  text-align: center;
+}
+
+input, select, button {
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  font-weight: 400;
+}
+
+button {
+  background-color: #4169e1;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #0f52ba;
+}
+
+#map {
+  height: 400px;
+  margin: 20px;
+}
+
+
+.note {
+  font-style: italic;
+  color: #5f9ea0;
+  margin-top: 10px;
+  font-weight: 400;
+}
+
+
+.back-icon {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 10;
+}
+
+.back-icon .material-icons {
+  font-size: 28px;
+  color: #f8f8f8;
+}
+
+.back-icon:hover .material-icons {
+  color: #005f87;
+}
+
+.top-price-line {
+  font-size: 18px;
+  font-weight: 500; 
+  margin: 12px 0;
+  padding: 10px;
+  background-color: #005f87;
+  color: #fffcfb;
+  border-left: 6px solid #001aff;
+  border-radius: 6px;
+}
+
+.section {
+  background: linear-gradient(135deg, #b0e0e6, #87ceeb); 
+  padding: 25px;
+  border-radius: 16px;
+  color: #14213d;
+  font-weight: 400;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+
+  </style>
+</head>
+<body>
+      <div id="loginPage">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div id="appPage">
+  <div id="mainApp" style="display: none;">
+    <div style="background-color: teal; color: white; text-align: center; padding: 20px;">
+  <h2>MATSYA</h2>
+    </div>
+
+    <div style="margin: 20px; text-align: center;">
+      <select id="districtSelect">
+        <option>Select District</option>
+     
+      </select>
+      <select id="fishSelect">
+        <option>Select Fish</option>
+      
+      </select>
+      <button onclick="searchMarkets()">Search Markets</button>
+    </div>
+
+   
+    <div id="resultsDiv" style="text-align: center; margin: 20px;"></div>
+
+    
+  </div>
+
+  <script>
+    function showMainApp() {
+      document.getElementById("welcomePage").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+    }
+  </script>
+</body>
+
+<script src="runtime.js" type="module"></script>
+<script src="polyfills.js" type="module"></script>
+<script src="main.js" type="module"></script>
+<div class="header-with-icon">
+        <header class="app-header">Fish Market Price Tracker</header>
+        <h1>AquaRadar</h1>
+<button onclick="goBack()" class="back-icon" title="Back">
+  <span class="material-icons">arrow_back</span>
+</button>
+  <script>
+    function goBack() {
+      location.reload(); 
+    }
+    </script>
+</div>
+  <div class="container">
+<div id="topPriceLine" class="top-price-line"></div>
+ <select id="districtInput">
+  <option value="">Select District</option>
+  <option value="Ariyalur">Ariyalur</option>
+  <option value="Chengalpattu">Chengalpattu</option>
+   <option value="Chennai">Chennai</option>
+  <option value="Coimbatore">Coimbatore</option>
+  <option value="Cuddalore">Cuddalore</option>
+  <option value="Dharmapuri">Dharmapuri</option>
+  <option value="Dindigul">Dindigul</option>
+  <option value="Erode">Erode</option>
+  <option value="Kallakurichi">Kallakurichi</option>
+  <option value="Kancheepuram">Kancheepuram</option>
+  <option value="Karur">Karur</option>
+  <option value="Kanyakumari">Kanyakumari</option>
+  <option value="Krishnagiri">Krishnagiri</option>
+  <option value="Madurai">Madurai</option>
+  <option value="Mayiladuthurai">Mayiladuthurai</option>
+  <option value="Nagapattinam">Nagapattinam</option>
+  <option value="Namakkal">Namakkal</option>
+  <option value="Nilgiris">Nilgiris</option>
+  <option value="Perambalur">Perambalur</option>
+  <option value="Pudukkottai">Pudukkottai</option>
+  <option value="Ramanathapuram">Ramanathapuram</option>
+  <option value="Ranipet">Ranipet</option>
+  <option value="Salem">Salem</option>
+  <option value="Sivaganga">Sivaganga</option>
+  <option value="Tenkasi">Tenkasi</option>
+  <option value="Thanjavur">Thanjavur</option>
+  <option value="Theni">Theni</option>
+  <option value="Thoothukudi">Thoothukudi</option>
+  <option value="Tiruchirappalli">Tiruchirappalli</option>
+  <option value="Tirunelveli">Tirunelveli</option>
+  <option value="Tirupathur">Tirupathur</option>
+  <option value="Tiruppur">Tiruppur</option>
+  <option value="Tiruvallur">Tiruvallur</option>
+  <option value="Tiruvannamalai">Tiruvannamalai</option>
+  <option value="Tiruvarur">Tiruvarur</option>
+  <option value="Vellore">Vellore</option>
+  <option value="Viluppuram">Viluppuram</option>
+  <option value="Virudhunagar">Virudhunagar</option>
+  <option value="Pondicherry">Pondicherry</option>
+</select>
+    <select id="fishSelect">
+        <option value="">Select Fish</option>
+    <option value="Amberjack">Amberjack</option>
+           <option value="Anchovy">Anchovy</option>
+<option value="Arctic Char">Arctic Char</option>
+<option value="Barracuda">Barracuda</option>
+<option value="Black Drum">Black Drum</option>
+<option value="Black Sea Bass">Black Sea Bass</option>
+<option value="Bluefish">Bluefish</option>
+<option value="Bluegill">Bluegill</option>
+<option value="Branzino">Branzino</option>
+<option value="Carp">Carp</option>
+<option value="Chanos (Milkfish)">Chanos (Milkfish)</option>
+<option value="Catla">Catla</option>
+<option value="Chub Mackerel">Chub Mackerel</option>
+<option value="Crab">Crab</option>
+<option value="Cod">Cod</option>
+<option value="Dogfish">Dogfish</option>
+<option value="Dover Sole">Dover Sole</option>
+<option value="Drum">Drum</option>
+<option value="Flounder">Flounder</option>
+<option value="Garfish">Garfish</option>
+<option value="Gilt-head Bream">Gilt-head Bream</option>
+<option value="Golden Snapper">Golden Snapper</option>
+<option value="Goosefish">Goosefish</option>
+<option value="Grunt">Grunt</option>
+<option value="Haddock">Haddock</option>
+<option value="Hake">Hake</option>
+<option value="Halibut">Halibut</option>
+<option value="Hardhead Catfish">Hardhead Catfish</option>
+<option value="Herring">Herring</option>
+<option value="Indian Salmon (Rawas)">Indian Salmon (Rawas)</option>
+<option value="Jack Crevalle">Jack Crevalle</option>
+<option value="King Mackerel">King Mackerel</option>
+<option value="Lanternfish">Lanternfish</option>
+<option value="Leatherjacket">Leatherjacket</option>
+<option value="Lingcod">Lingcod</option>
+<option value="Longfin Tuna">Longfin Tuna</option>
+<option value="Mahseer">Mahseer</option>
+<option value="Marlin">Marlin</option>
+<option value="Mackerel">Mackerel</option>
+<option value="Monkfish">Monkfish</option>
+<option value="Moray Eel">Moray Eel</option>
+<option value="Needlefish">Needlefish</option>
+<option value="Nile Perch">Nile Perch</option>
+<option value="Ocean Perch">Ocean Perch</option>
+<option value="Parrotfish">Parrotfish</option>
+<option value="Peacock Bass">Peacock Bass</option>
+<option value="Pike">Pike</option>
+<option value="Pilot Fish">Pilot Fish</option>
+<option value="Pollock">Pollock</option>
+<option value="Pomfret">Pomfret</option>
+ <option value="Prawn">Prawn</option>
+<option value="Ragfish">Ragfish</option>
+<option value="Rainbow Trout">Rainbow Trout</option>
+<option value="Red Drum">Red Drum</option>
+<option value="Rockfish">Rockfish</option>
+<option value="Rohu">Rohu</option>
+<option value="Sanddab">Sanddab</option>
+<option value="Sardine">Sardine</option>
+<option value="Sculpin">Sculpin</option>
+ <option value="Seer Fish">Seer Fish</option>
+ <option value="Sheepshead">Sheepshead</option>
+<option value="Skipjack Tuna">Skipjack Tuna</option>
+<option value="Snake Mackerel">Snake Mackerel</option>
+<option value="Sole">Sole</option>
+<option value="Spanish Mackerel">Spanish Mackerel</option>
+<option value="Stingray">Stingray</option>
+<option value="Striped Bass">Striped Bass</option>
+<option value="Surmai">Surmai</option>
+<option value="Tarpon">Tarpon</option>
+<option value="Threadfin">Threadfin</option>
+<option value="Tilefish">Tilefish</option>
+<option value="Torpedo">Torpedo</option>
+<option value="Triggerfish">Triggerfish</option>
+ <option value="Tuna">Tuna</option>
+ <option value="Turbot">Turbot</option>
+<option value="Wahoo">Wahoo</option>
+<option value="White Bass">White Bass</option>
+<option value="Whitefish">Whitefish</option>
+<option value="Yellow Perch">Yellow Perch</option>
+<option value="Yellowfin Tuna">Yellowfin Tuna</option>
+    </select>
+    <button onclick="searchMarkets()">Search Markets</button>
+    <div id="results"></div>
+    <div id="map"></div>
+    <div class="note">Note: Best price is highlighted. Locations powered by OpenStreetMap.</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const realMarkets = {
+       Chennai: [
+        { name: "Kasimedu Fish Market", lat: 13.1235, lng: 80.2961 },
+        { name: "Chintadripet Market", lat: 13.0713, lng: 80.2622 },
+        { name: "Saidapet Market", lat: 13.0215, lng: 80.2278 },
+        { name: "T. Nagar Market", lat: 13.0425, lng: 80.2337 },
+        { name: "Koyambedu Market", lat: 13.0704, lng: 80.1847 },
+        { name: "Royapuram Market", lat: 13.1189, lng: 80.2933 },
+        { name: "Velachery Market", lat: 12.9791, lng: 80.2186 },
+        { name: "Thiruvanmiyur Market", lat: 12.9835, lng: 80.2634 },
+        { name: "Washermanpet Market", lat: 13.1171, lng: 80.2779 },
+        { name: "Perambur Market", lat: 13.1107, lng: 80.2285 },
+        { name: "Mylapore Market", lat: 13.0311, lng: 80.2684 },
+        { name: "Tondiarpet Market", lat: 13.1333, lng: 80.2883 },
+        { name: "Adyar Market", lat: 13.0068, lng: 80.2552 },
+        { name: "Poonamallee Market", lat: 13.0487, lng: 80.1078 },
+        { name: "Triplicane Market", lat: 13.0603, lng: 80.2740 },
+        { name: "Mount Road Market", lat: 13.0590, lng: 80.2613 },
+        { name: "Anna Nagar Market", lat: 13.0830, lng: 80.2202 },
+        { name: "Kolathur Market", lat: 13.1272, lng: 80.2334 },
+        { name: "Ambattur Market", lat: 13.1020, lng: 80.1626 },
+        { name: "Porur Market", lat: 13.0344, lng: 80.1581 },
+        { name: "Manali Market", lat: 13.1782, lng: 80.2645 }
+      ],
+      Madurai: [
+        { name: "Goripalayam Market", lat: 9.93, lng: 78.116 },
+        { name: "Thallakulam Market", lat: 9.939, lng: 78.138 },
+        { name: "Anna Market", lat: 9.919, lng: 78.129 },
+        { name: "Arapalayam Market", lat: 9.917, lng: 78.104 },
+        { name: "K. Pudur Market", lat: 9.95, lng: 78.15 },
+        { name: "S. S. Colony Market", lat: 9.91, lng: 78.13 },
+        { name: "South Gate Market", lat: 9.91, lng: 78.12 },
+        { name: "Villapuram Market", lat: 9.88, lng: 78.12 },
+        { name: "Melur Market", lat: 10.03, lng: 78.34 },
+        { name: "Thirumangalam Market", lat: 9.83, lng: 77.98 },
+        { name: "Avaniyapuram Market", lat: 9.87, lng: 78.08 }
+      ],
+       Tirunelveli: [
+        { name: "Palayamkottai Market", lat: 8.7139, lng: 77.7567 },
+        { name: "Melapalayam Market", lat: 8.7039, lng: 77.7485 },
+        { name: "Pettai Market", lat: 8.7201, lng: 77.7291 },
+        { name: "Tirunelveli Junction", lat: 8.7301, lng: 77.7082 },
+        { name: "KTC Nagar", lat: 8.7365, lng: 77.7490 },
+        { name: "Vannarpettai Market", lat: 8.7273, lng: 77.7532 },
+        { name: "High Ground Market", lat: 8.7412, lng: 77.7464 },
+        { name: "Manonmaniam Market", lat: 8.7512, lng: 77.7411 },
+        { name: "Tenkasi Road Market", lat: 8.7584, lng: 77.7350 },
+        { name: "Thachanallur", lat: 8.6922, lng: 77.7408 },
+        { name: "Junction Fish Market", lat: 8.7203, lng: 77.7193 }
+      ],
+      Coimbatore: [
+        { name: "Town Hall Market", lat: 11.0055, lng: 76.9661 },
+        { name: "Gandhipuram Market", lat: 11.0174, lng: 76.9635 },
+        { name: "Ukkadam Market", lat: 10.9970, lng: 76.9551 },
+        { name: "R.S. Puram Market", lat: 11.0085, lng: 76.9451 },
+        { name: "Singanallur Market", lat: 11.0103, lng: 77.0030 },
+        { name: "Saibaba Colony Market", lat: 11.0291, lng: 76.9443 },
+        { name: "Peelamedu Market", lat: 11.0347, lng: 77.0364 },
+        { name: "Kovaipudur Market", lat: 10.9979, lng: 76.9125 },
+        { name: "Vadavalli Market", lat: 11.0431, lng: 76.9114 },
+        { name: "Thudiyalur Market", lat: 11.0826, lng: 76.9515 },
+        { name: "Sundarapuram Market", lat: 10.9774, lng: 76.9623 }
+      ],
+       Ariyalur: [
+        { name: "Ariyalur Central Market", lat: 11.1386, lng: 79.0756 },
+        { name: "Sendurai Market", lat: 11.3182, lng: 78.9756 },
+        { name: "Jayankondam Fish Market", lat: 11.2135, lng: 79.3664 },
+        { name: "Kunnam Market", lat: 11.2240, lng: 79.1692 },
+        { name: "Andimadam Market", lat: 11.2543, lng: 79.3372 },
+        { name: "Udayarpalayam Market", lat: 11.3432, lng: 79.2892 },
+        { name: "Vembavur Market", lat: 11.0386, lng: 79.2187 },
+        { name: "Sillakudi Market", lat: 11.1092, lng: 79.0643 },
+        { name: "T Pazhur Market", lat: 11.0463, lng: 79.1168 },
+        { name: "Keelapalur Market", lat: 11.1778, lng: 79.1054 },
+        { name: "Perambalur Road Market", lat: 11.2334, lng: 78.8904 }
+      ],
+      Chengalpattu: [
+  { name: "Chengalpattu Town Market", lat: 12.6935, lng: 79.9754 },
+  { name: "Tambaram Market", lat: 12.9246, lng: 80.1218 },
+  { name: "Guduvanchery Market", lat: 12.8441, lng: 80.0604 },
+  { name: "Pallavaram Market", lat: 12.9674, lng: 80.1498 },
+  { name: "Thiruporur Market", lat: 12.7252, lng: 80.2067 },
+  { name: "Kelambakkam Market", lat: 12.7936, lng: 80.2295 },
+  { name: "Mahabalipuram Market", lat: 12.6208, lng: 80.1936 },
+  { name: "Madurantakam Market", lat: 12.5097, lng: 79.8841 },
+  { name: "Acharapakkam Market", lat: 12.4701, lng: 79.8616 },
+  { name: "Maraimalai Nagar Market", lat: 12.8324, lng: 80.0305 },
+  { name: "Urapakkam Market", lat: 12.9052, lng: 80.0894 },
+  { name: "Perungalathur Market", lat: 12.9183, lng: 80.0936 },
+  { name: "Chromepet Market", lat: 12.9503, lng: 80.1411 },
+  { name: "Mambakkam Market", lat: 12.8714, lng: 80.1986 },
+  { name: "Sembakkam Market", lat: 12.9187, lng: 80.1424 },
+  { name: "Thirukazhukundram Market", lat: 12.6102, lng: 80.0386 },
+  { name: "Padappai Market", lat: 12.8863, lng: 80.0543 },
+  { name: "Nandivaram Market", lat: 12.8519, lng: 80.0621 },
+  { name: "Kundrathur Market", lat: 12.9795, lng: 80.0856 },
+  { name: "Vandalur Market", lat: 12.8919, lng: 80.0805 },
+  { name: "Mannivakkam Market", lat: 12.8987, lng: 80.0428 }
+],
+       Cuddalore: [
+  { name: "Cuddalore Old Town Market", lat: 11.7456, lng: 79.7648 },
+  { name: "Cuddalore New Bus Stand Market", lat: 11.7441, lng: 79.7592 },
+  { name: "Panruti Market", lat: 11.7763, lng: 79.5529 },
+  { name: "Vadalur Market", lat: 11.5531, lng: 79.5437 },
+  { name: "Kurinjipadi Market", lat: 11.5857, lng: 79.6062 },
+  { name: "Chidambaram Market", lat: 11.3995, lng: 79.6956 },
+  { name: "Kattumannarkoil Market", lat: 11.4021, lng: 79.6132 },
+  { name: "Parangipettai Market", lat: 11.4989, lng: 79.7531 },
+  { name: "Bhuvanagiri Market", lat: 11.4496, lng: 79.6157 },
+  { name: "Sethiyathoppu Market", lat: 11.5233, lng: 79.5078 },
+  { name: "Neyveli Market", lat: 11.6041, lng: 79.4731 },
+  { name: "Mangalampettai Market", lat: 11.5830, lng: 79.4361 },
+  { name: "Kumaratchi Market", lat: 11.3966, lng: 79.6112 },
+  { name: "Kammapuram Market", lat: 11.4702, lng: 79.4372 },
+  { name: "Keerapalayam Market", lat: 11.3723, lng: 79.6609 },
+  { name: "Sivapuri Market", lat: 11.4162, lng: 79.6884 },
+  { name: "B. Muthlur Market", lat: 11.4611, lng: 79.7476 },
+  { name: "Puthupettai Market", lat: 11.7695, lng: 79.6015 },
+  { name: "Vazhapadi Market", lat: 11.7342, lng: 79.7453 },
+  { name: "C. Mutlur Market", lat: 11.4232, lng: 79.7021 },
+  { name: "Melpattampakkam Market", lat: 11.7003, lng: 79.6054 }
+],
+
+      Dharmapuri: [
+        { name: "Dharmapuri Town Market", lat: 12.1357, lng: 78.1627 },
+        { name: "Harur Market", lat: 12.0521, lng: 78.5013 },
+        { name: "Pappireddipatti Market", lat: 11.8894, lng: 78.2761 },
+        { name: "Palacode Market", lat: 12.3006, lng: 78.0701 },
+        { name: "Pennagaram Market", lat: 12.0977, lng: 77.8932 },
+        { name: "Karimangalam Market", lat: 12.2790, lng: 78.1925 },
+        { name: "Nallampalli Market", lat: 12.1132, lng: 78.0706 },
+        { name: "Morappur Market", lat: 12.0566, lng: 78.3181 },
+        { name: "Kambainallur Market", lat: 12.1806, lng: 78.2942 },
+        { name: "Bommidi Market", lat: 11.8596, lng: 78.2927 },
+        { name: "Marandahalli Market", lat: 12.1814, lng: 77.9214 }
+      ],
+      Dindigul: [
+        { name: "Dindigul Central Market", lat: 10.3673, lng: 77.9803 },
+        { name: "Palani Market", lat: 10.4508, lng: 77.5200 },
+        { name: "Oddanchatram Market", lat: 10.4826, lng: 77.7535 },
+        { name: "Vedasandur Market", lat: 10.5300, lng: 77.9500 },
+        { name: "Nilakottai Market", lat: 10.1623, lng: 77.8660 },
+        { name: "Batlagundu Market", lat: 10.1622, lng: 77.7485 },
+        { name: "Kodaikanal Market", lat: 10.2381, lng: 77.4892 },
+        { name: "Natham Market", lat: 10.2317, lng: 78.0222 },
+        { name: "Guziliamparai Market", lat: 10.5251, lng: 78.1351 },
+        { name: "Reddiarchatram Market", lat: 10.3685, lng: 77.9346 },
+        { name: "Vadamadurai Market", lat: 10.3021, lng: 78.0051 }
+      ],
+
+      Erode: [
+        { name: "Erode Fish Market", lat: 11.3410, lng: 77.7172 },
+        { name: "Perundurai Market", lat: 11.2755, lng: 77.5871 },
+        { name: "Gobichettipalayam Market", lat: 11.4550, lng: 77.4423 },
+        { name: "Bhavani Market", lat: 11.4456, lng: 77.6841 },
+        { name: "Sathyamangalam Market", lat: 11.5056, lng: 77.2763 },
+        { name: "Modakurichi Market", lat: 11.2478, lng: 77.7722 },
+        { name: "Kodumudi Market", lat: 11.0806, lng: 77.8894 },
+        { name: "Chennimalai Market", lat: 11.1594, lng: 77.6033 },
+        { name: "Anthiyur Market", lat: 11.5828, lng: 77.5907 },
+        { name: "Ammapet Market", lat: 11.5236, lng: 77.7367 },
+        { name: "Nambiyur Market", lat: 11.4882, lng: 77.3706 }
+      ],
+      Kallakurichi: [
+        { name: "Kallakurichi Main Market", lat: 11.7393, lng: 78.9604 },
+        { name: "Sankarapuram Market", lat: 11.6969, lng: 78.7302 },
+        { name: "Ulundurpet Market", lat: 11.6953, lng: 79.3335 },
+        { name: "Chinnasalem Market", lat: 11.6382, lng: 78.8672 },
+        { name: "Thiyagadurgam Market", lat: 11.6224, lng: 78.9446 },
+        { name: "Kalvarayan Hills Market", lat: 11.8676, lng: 78.6047 },
+        { name: "Siruvanthadu Market", lat: 11.7594, lng: 78.8770 },
+        { name: "Manalurpet Market", lat: 11.6569, lng: 79.2493 },
+        { name: "Thirunavalur Market", lat: 11.5647, lng: 79.2751 },
+        { name: "Arakandanallur Market", lat: 11.8036, lng: 79.3794 }
+      ],
+
+       Kancheepuram: [
+        { name: "Kancheepuram Town Market", lat: 12.8370, lng: 79.7037 },
+        { name: "Walajabad Market", lat: 12.8342, lng: 79.7941 },
+        { name: "Uthiramerur Market", lat: 12.6152, lng: 79.7580 },
+        { name: "Sriperumbudur Market", lat: 12.9676, lng: 79.9416 },
+        { name: "Oragadam Market", lat: 12.9438, lng: 79.9754 },
+        { name: "Baluchetty Chatram Market", lat: 12.9065, lng: 79.9347 },
+        { name: "Sunguvarchatram Market", lat: 13.0262, lng: 79.9492 },
+        { name: "Maraimalai Nagar Market", lat: 12.8324, lng: 80.0305 },
+        { name: "Ayyampettai Market", lat: 12.8644, lng: 79.8058 },
+        { name: "Nandivaram Market", lat: 12.8730, lng: 79.9776 },
+        { name: "Chengalpattu Market", lat: 12.6935, lng: 79.9754 },
+        { name: "Padappai Market", lat: 12.8892, lng: 80.0172 },
+        { name: "Manimangalam Market", lat: 12.9113, lng: 80.0354 },
+        { name: "Karasangal Market", lat: 12.8816, lng: 80.0507 },
+        { name: "Mangadu Market", lat: 13.0133, lng: 80.1163 },
+        { name: "Pillaipakkam Market", lat: 12.9994, lng: 79.9261 },
+        { name: "Periyapalayam Market", lat: 13.2447, lng: 80.1213 },
+        { name: "Nemili Market", lat: 12.9890, lng: 79.8611 },
+        { name: "Mambakkam Market", lat: 12.8497, lng: 80.1646 },
+        { name: "Perungudi Market", lat: 12.9698, lng: 80.2404 },
+        { name: "Nemmeli Market", lat: 12.7300, lng: 80.2500 }
+      ],
+       Kanyakumari: [
+        { name: "Nagercoil Market", lat: 8.1780, lng: 77.4344 },
+        { name: "Colachel Fish Market", lat: 8.1765, lng: 77.2626 },
+        { name: "Kuzhithurai Market", lat: 8.3106, lng: 77.2691 },
+        { name: "Thingal Nagar Market", lat: 8.1903, lng: 77.4123 },
+        { name: "Suchindram Market", lat: 8.1483, lng: 77.4777 },
+        { name: "Agastheeswaram Market", lat: 8.0933, lng: 77.5455 },
+        { name: "Rajakkamangalam Market", lat: 8.0999, lng: 77.4652 },
+        { name: "Muttom Market", lat: 8.1017, lng: 77.2945 },
+        { name: "Puthalam Market", lat: 8.1190, lng: 77.4482 },
+        { name: "Azhagappapuram Market", lat: 8.1895, lng: 77.4302 },
+        { name: "Kanyakumari Main Market", lat: 8.0782, lng: 77.5419 },
+        { name: "Karungal Market", lat: 8.2952, lng: 77.3257 },
+        { name: "Vallioor Market", lat: 8.3754, lng: 77.6057 },
+        { name: "Erumbukadu Market", lat: 8.1729, lng: 77.4482 },
+        { name: "Anjugramam Market", lat: 8.1336, lng: 77.4931 },
+        { name: "Manavalakurichi Market", lat: 8.1374, lng: 77.2912 },
+        { name: "Melmidalam Market", lat: 8.2442, lng: 77.3391 },
+        { name: "Keelakarai Market", lat: 8.2520, lng: 77.3672 },
+        { name: "Pazhayar Market", lat: 8.1950, lng: 77.3544 },
+        { name: "Thuckalay Market", lat: 8.1983, lng: 77.3296 },
+        { name: "Marthandam Market", lat: 8.3100, lng: 77.2255 }
+      ],
+
+      Karur: [
+        { name: "Karur Main Market", lat: 10.9601, lng: 78.0766 },
+        { name: "Kulithalai Market", lat: 10.9304, lng: 78.4134 },
+        { name: "Krishnarayapuram Market", lat: 11.0073, lng: 78.2442 },
+        { name: "Aravakurichi Market", lat: 10.7351, lng: 77.8544 },
+        { name: "Pugalur Market", lat: 11.1040, lng: 78.0413 },
+        { name: "Thanthoni Market", lat: 10.9593, lng: 78.0782 },
+        { name: "Nerur Market", lat: 10.9510, lng: 78.0385 },
+        { name: "Paramathi Market", lat: 10.8279, lng: 77.9926 },
+        { name: "Vengamedu Market", lat: 10.9702, lng: 78.0712 },
+        { name: "Mayanur Market", lat: 11.0474, lng: 78.2674 },
+        { name: "Inam Karur Market", lat: 10.9567, lng: 78.0810 }
+      ],
+      Krishnagiri: [
+  { name: "Krishnagiri Main Market", lat: 12.5186, lng: 78.2137 },
+  { name: "Hosur Market", lat: 12.7401, lng: 77.8253 },
+  { name: "Uthangarai Market", lat: 12.0921, lng: 78.4560 },
+  { name: "Kaveripattinam Market", lat: 12.4289, lng: 78.2007 },
+  { name: "Bargur Market", lat: 12.5426, lng: 78.3512 },
+  { name: "Shoolagiri Market", lat: 12.7075, lng: 77.9056 },
+  { name: "Mathur Market", lat: 12.2630, lng: 78.2198 },
+  { name: "Kelamangalam Market", lat: 12.6237, lng: 77.8567 },
+  { name: "Thally Market", lat: 12.5568, lng: 77.8912 },
+  { name: "Veppanapalli Market", lat: 12.6613, lng: 78.2152 },
+  { name: "Rayakottai Market", lat: 12.4578, lng: 78.0941 }
+],
+Mayiladuthurai: [
+  { name: "Mayiladuthurai Main Market", lat: 11.1020, lng: 79.6550 },
+  { name: "Sembanarkoil Market", lat: 11.0142, lng: 79.7337 },
+  { name: "Kuthalam Market", lat: 11.0623, lng: 79.5806 },
+  { name: "Tharangambadi Market", lat: 11.0290, lng: 79.8533 },
+  { name: "Vaitheeswarankoil Market", lat: 11.2084, lng: 79.7151 },
+  { name: "Poompuhar Market", lat: 11.1430, lng: 79.8574 },
+  { name: "Sirkazhi Market", lat: 11.2363, lng: 79.7265 },
+  { name: "Kollidam Market", lat: 11.3573, lng: 79.7661 },
+  { name: "Manalmedu Market", lat: 11.0824, lng: 79.5726 },
+  { name: "Kottucherry Market", lat: 11.0541, lng: 79.8002 },
+  { name: "Keezhaiyur Market", lat: 11.1772, lng: 79.8324 },
+  { name: "Porayar Market", lat: 11.0635, lng: 79.8473 },
+  { name: "Nalladai Market", lat: 11.2248, lng: 79.6739 },
+  { name: "Mathirimangalam Market", lat: 11.1057, lng: 79.7731 },
+  { name: "Anaikarai Market", lat: 11.0650, lng: 79.5312 },
+  { name: "Thirukadaiyur Market", lat: 11.0803, lng: 79.8551 },
+  { name: "Thirumanancheri Market", lat: 11.1021, lng: 79.6493 },
+  { name: "Vellarikundu Market", lat: 11.2102, lng: 79.6119 },
+  { name: "Thiruvengadu Market", lat: 11.0770, lng: 79.7943 },
+  { name: "Kodavasal Market", lat: 11.0832, lng: 79.4891 },
+  { name: "Akkur Market", lat: 11.1075, lng: 79.7645 }
+],
+Nagapattinam: [
+  { name: "Nagapattinam Main Market", lat: 10.7656, lng: 79.8434 },
+  { name: "Velankanni Fish Market", lat: 10.6819, lng: 79.8506 },
+  { name: "Karaikal Port Market", lat: 10.9231, lng: 79.8342 },
+  { name: "Thirukadaiyur Market", lat: 11.0268, lng: 79.7920 },
+  { name: "Vedaranyam Market", lat: 10.3696, lng: 79.8519 },
+  { name: "Sikkal Market", lat: 10.7647, lng: 79.7820 },
+  { name: "Kilvelur Market", lat: 10.6840, lng: 79.7375 },
+  { name: "Keezhayur Market", lat: 10.7893, lng: 79.8600 },
+  { name: "Thalaignayiru Market", lat: 10.5407, lng: 79.8995 },
+  { name: "Kodiyakadu Market", lat: 10.3376, lng: 79.8283 },
+  { name: "Manalmedu Market", lat: 11.0636, lng: 79.4620 },
+  { name: "Mayiladuthurai Border Market", lat: 11.1014, lng: 79.6524 },
+  { name: "Narimanam Market", lat: 10.8442, lng: 79.7653 },
+  { name: "Poompuhar Market", lat: 11.1486, lng: 79.8556 },
+  { name: "Thirumullaivasal Market", lat: 11.2369, lng: 79.8442 },
+  { name: "Madathukuppam Market", lat: 11.1884, lng: 79.7792 },
+  { name: "Pattukkottai East Market", lat: 10.4237, lng: 79.3194 },
+  { name: "Akkaraipettai Market", lat: 10.7735, lng: 79.8499 },
+  { name: "Seruthur Market", lat: 10.2869, lng: 79.8651 },
+  { name: "Pushpavanam Market", lat: 10.3127, lng: 79.8404 },
+  { name: "Kadinalvayal Market", lat: 10.7689, lng: 79.7799 }
+],
+
+Namakkal: [
+  { name: "Namakkal Main Market", lat: 11.2229, lng: 78.1703 },
+  { name: "Rasipuram Market", lat: 11.4601, lng: 78.1753 },
+  { name: "Tiruchengode Market", lat: 11.3806, lng: 77.8945 },
+  { name: "Paramathi Velur Market", lat: 11.0537, lng: 78.0334 },
+  { name: "Komarapalayam Market", lat: 11.4367, lng: 77.7192 },
+  { name: "Mohanur Market", lat: 11.0994, lng: 78.1526 },
+  { name: "Erumaipatti Market", lat: 11.1763, lng: 78.2525 },
+  { name: "Sendamangalam Market", lat: 11.2671, lng: 78.2938 },
+  { name: "Kabilarmalai Market", lat: 11.0045, lng: 78.1001 },
+  { name: "Puduchatram Market", lat: 11.3003, lng: 78.2501 },
+  { name: "Velagoundampatti Market", lat: 11.0800, lng: 78.0303 }
+],
+Pudukkottai: [
+  { name: "Pudukkottai Main Market", lat: 10.3813, lng: 78.8214 },
+  { name: "Keeranur Market", lat: 10.4964, lng: 78.6028 },
+  { name: "Aranthangi Market", lat: 10.1727, lng: 78.9916 },
+  { name: "Alangudi Market", lat: 10.3684, lng: 78.9381 },
+  { name: "Illuppur Market", lat: 10.4960, lng: 78.7723 },
+  { name: "Kulathur Market", lat: 10.5452, lng: 78.6357 },
+  { name: "Ponnamaravathi Market", lat: 10.2237, lng: 78.5411 },
+  { name: "Thirumayam Market", lat: 10.2386, lng: 78.7451 },
+  { name: "Annavasal Market", lat: 10.4241, lng: 78.6352 },
+  { name: "Karambakudi Market", lat: 10.4789, lng: 79.0052 },
+  { name: "Namanasamudram Market", lat: 10.2560, lng: 78.8888 },
+  { name: "Avudaiyarkoil Market", lat: 9.9110, lng: 79.0864 },
+  { name: "Kumaripatti Market", lat: 10.1633, lng: 78.7091 },
+  { name: "Perungalur Market", lat: 10.4554, lng: 78.7512 },
+  { name: "Nachandupatti Market", lat: 10.3862, lng: 78.8881 },
+  { name: "Kandiyanatham Market", lat: 10.4109, lng: 78.8325 },
+  { name: "Mimisal Market", lat: 9.9836, lng: 79.0654 },
+  { name: "Vadakadu Market", lat: 10.1262, lng: 78.9881 },
+  { name: "Ayingudi Market", lat: 10.1942, lng: 78.9212 },
+  { name: "Athur Market", lat: 10.3132, lng: 78.8930 },
+  { name: "Mangudi Market", lat: 10.1458, lng: 79.0127 }
+],
+
+Ramanathapuram: [
+  { name: "Ramanathapuram Market", lat: 9.3716, lng: 78.8336 },
+  { name: "Paramakudi Market", lat: 9.5491, lng: 78.5932 },
+  { name: "Rameswaram Market", lat: 9.2876, lng: 79.3129 },
+  { name: "Mudukulathur Market", lat: 9.3479, lng: 78.5457 },
+  { name: "Kamuthi Market", lat: 9.4085, lng: 78.3672 },
+  { name: "Sayalkudi Market", lat: 9.1650, lng: 78.4213 },
+  { name: "Mandapam Market", lat: 9.2802, lng: 79.1165 },
+  { name: "Thiruvadanai Market", lat: 9.8324, lng: 78.9732 },
+  { name: "Uchippuli Market", lat: 9.3916, lng: 79.0515 },
+  { name: "Pamban Market", lat: 9.2777, lng: 79.2042 },
+  { name: "Bogalur Market", lat: 9.4406, lng: 78.7653 },
+  { name: "Emaneswaram Market", lat: 9.3882, lng: 78.8471 },
+  { name: "Thiruppullani Market", lat: 9.3291, lng: 78.8551 },
+  { name: "Nainarkoil Market", lat: 9.5256, lng: 78.6579 },
+  { name: "Vanniyur Market", lat: 9.3677, lng: 78.8843 },
+  { name: "Muthukulathur Market", lat: 9.2886, lng: 78.5690 },
+  { name: "Thondi Market", lat: 9.7419, lng: 79.0301 },
+  { name: "Devipattinam Market", lat: 9.3842, lng: 78.9093 },
+  { name: "Thirasuthur Market", lat: 9.2379, lng: 78.9704 },
+  { name: "Erumakulam Market", lat: 9.4212, lng: 78.8730 },
+  { name: "Mukuntharayankottai Market", lat: 9.3750, lng: 78.8999 }
+],
+Ranipet: [
+  { name: "Ranipet Main Market", lat: 12.9232, lng: 79.3250 },
+  { name: "Walajapet Market", lat: 12.9275, lng: 79.3743 },
+  { name: "Arcot Market", lat: 12.9051, lng: 79.3291 },
+  { name: "Melvisharam Market", lat: 12.9113, lng: 79.3120 },
+  { name: "Sholinghur Market", lat: 13.1096, lng: 79.4285 },
+  { name: "Kalavai Market", lat: 12.7701, lng: 79.4302 },
+  { name: "Timiri Market", lat: 12.8382, lng: 79.2634 },
+  { name: "Arakkonam Market", lat: 13.0840, lng: 79.6701 },
+  { name: "Panapakkam Market", lat: 12.9243, lng: 79.6037 },
+  { name: "Nemili Market", lat: 12.9091, lng: 79.4842 },
+  { name: "Kilminnal Market", lat: 12.9442, lng: 79.2944 }
+],
+
+Salem: [
+  { name: "Salem Town Market", lat: 11.6643, lng: 78.1460 },
+  { name: "Shevapet Market", lat: 11.6673, lng: 78.1423 },
+  { name: "Hasthampatti Market", lat: 11.6675, lng: 78.1355 },
+  { name: "Suramangalam Market", lat: 11.6672, lng: 78.1246 },
+  { name: "Ammapet Market", lat: 11.6799, lng: 78.1659 },
+  { name: "Attur Market", lat: 11.5941, lng: 78.6013 },
+  { name: "Mettur Market", lat: 11.8002, lng: 77.8996 },
+  { name: "Omalur Market", lat: 11.7396, lng: 78.0457 },
+  { name: "Yercaud Market", lat: 11.7750, lng: 78.2094 },
+  { name: "Edappadi Market", lat: 11.5863, lng: 77.8485 },
+  { name: "Gangavalli Market", lat: 11.4923, lng: 78.6374 }
+],
+Sivaganga: [
+  { name: "Sivaganga Main Market", lat: 9.8470, lng: 78.4836 },
+  { name: "Karaikudi Market", lat: 10.0738, lng: 78.7684 },
+  { name: "Devakottai Market", lat: 9.9477, lng: 78.8237 },
+  { name: "Singampunari Market", lat: 10.1819, lng: 78.3567 },
+  { name: "Manamadurai Market", lat: 9.7002, lng: 78.4839 },
+  { name: "Tirupathur Market", lat: 10.1202, lng: 78.6221 },
+  { name: "Thiruppuvanam Market", lat: 9.8234, lng: 78.2948 },
+  { name: "Ilayangudi Market", lat: 9.5946, lng: 78.6007 },
+  { name: "Kalayarkoil Market", lat: 9.9302, lng: 78.6643 },
+  { name: "Nedungudi Market", lat: 10.0641, lng: 78.7413 },
+  { name: "Pallithammam Market", lat: 10.0241, lng: 78.5881 }
+],
+
+Tenkasi: [
+  { name: "Tenkasi Main Market", lat: 8.9599, lng: 77.3164 },
+  { name: "Shencottai Market", lat: 8.9785, lng: 77.2532 },
+  { name: "Sivagiri Market", lat: 9.3694, lng: 77.3993 },
+  { name: "Alangulam Market", lat: 8.9175, lng: 77.5389 },
+  { name: "Kadayanallur Market", lat: 9.0750, lng: 77.3497 },
+  { name: "Sankarankovil Market", lat: 9.1725, lng: 77.5457 },
+  { name: "Veerakeralampudur Market", lat: 8.8756, lng: 77.4314 },
+  { name: "Puliyankudi Market", lat: 9.1674, lng: 77.3953 },
+  { name: "Thiruvengadam Market", lat: 9.2552, lng: 77.5442 },
+  { name: "Kuruvikulam Market", lat: 9.2430, lng: 77.7490 },
+  { name: "Keelapavoor Market", lat: 8.8984, lng: 77.4322 }
+],
+Tanjore: [
+  { name: "Thanjavur Main Market", lat: 10.7867, lng: 79.1378 },
+  { name: "Papanasam Market", lat: 10.9266, lng: 79.2701 },
+  { name: "Orathanadu Market", lat: 10.5982, lng: 79.2554 },
+  { name: "Pattukkottai Market", lat: 10.4234, lng: 79.3174 },
+  { name: "Peravurani Market", lat: 10.2975, lng: 79.2011 },
+  { name: "Kumbakonam Fish Market", lat: 10.9620, lng: 79.3889 },
+  { name: "Thiruvaiyaru Market", lat: 10.8840, lng: 79.1012 },
+  { name: "Ayyampettai Market", lat: 10.7919, lng: 79.2308 },
+  { name: "Melattur Market", lat: 10.6946, lng: 79.2433 },
+  { name: "Sethubavachatram Market", lat: 10.3513, lng: 79.3218 },
+  { name: "Madukkur Market", lat: 10.4992, lng: 79.3665 },
+  { name: "Ammapettai Market", lat: 10.8231, lng: 79.1440 },
+  { name: "Nanjikottai Market", lat: 10.7195, lng: 79.1004 },
+  { name: "Budalur Market", lat: 10.7786, lng: 78.9642 },
+  { name: "Neivasal Market", lat: 10.6888, lng: 79.2130 },
+  { name: "Mannargudi Road Market", lat: 10.6662, lng: 79.4182 },
+  { name: "Thiruvidaimarudur Market", lat: 11.0150, lng: 79.4605 },
+  { name: "Natchiyarkoil Market", lat: 10.9291, lng: 79.3642 },
+  { name: "Muthupettai Market", lat: 10.3917, lng: 79.4952 },
+  { name: "Avanam Market", lat: 10.4862, lng: 79.3801 },
+  { name: "Adirampattinam Market", lat: 10.3400, lng: 79.3932 },
+  { name: "Palanthiravidaicherry Market", lat: 10.3147, lng: 79.4758 }
+],
+Theni: [
+  { name: "Theni Main Market", lat: 10.0153, lng: 77.4777 },
+  { name: "Periyakulam Market", lat: 10.1234, lng: 77.5479 },
+  { name: "Bodinayakanur Market", lat: 9.8412, lng: 77.3532 },
+  { name: "Uthamapalayam Market", lat: 9.7882, lng: 77.3340 },
+  { name: "Cumbum Market", lat: 9.7306, lng: 77.2842 },
+  { name: "Chinnamanur Market", lat: 9.8384, lng: 77.3784 },
+  { name: "Andipatti Market", lat: 9.8845, lng: 77.6165 },
+  { name: "Kadamalaigundu Market", lat: 9.9214, lng: 77.4175 },
+  { name: "Kambam Market", lat: 9.7456, lng: 77.2894 },
+  { name: "Allinagaram Market", lat: 10.0042, lng: 77.4705 },
+  { name: "Vaigai Dam Market", lat: 9.9582, lng: 77.5993 }
+],
+Thoothukudi: [
+  { name: "Thoothukudi Main Market", lat: 8.8050, lng: 78.1512 },
+  { name: "Vanchi Maniyachchi Market", lat: 8.8816, lng: 77.9613 },
+  { name: "Kayalpattinam Market", lat: 8.5712, lng: 78.1269 },
+  { name: "Tiruchendur Market", lat: 8.4976, lng: 78.1227 },
+  { name: "Srivaikuntam Market", lat: 8.6202, lng: 77.9514 },
+  { name: "Eral Market", lat: 8.6522, lng: 78.0485 },
+  { name: "Nazareth Market", lat: 8.5569, lng: 77.9601 },
+  { name: "Alwarthirunagari Market", lat: 8.6043, lng: 77.9371 },
+  { name: "Sathankulam Market", lat: 8.4401, lng: 77.9311 },
+  { name: "Udangudi Market", lat: 8.4002, lng: 78.0281 },
+  { name: "Pattakarai Market", lat: 8.5774, lng: 78.0512 },
+  { name: "Kovilpatti Market", lat: 9.1746, lng: 77.8684 },
+  { name: "Pudukottai Market", lat: 8.7268, lng: 78.0702 },
+  { name: "Ottapidaram Market", lat: 8.9310, lng: 78.0321 },
+  { name: "Tharuvaikulam Market", lat: 8.9253, lng: 78.1378 },
+  { name: "Maniyachchi Market", lat: 8.8789, lng: 77.9607 },
+  { name: "Vedapatti Market", lat: 8.8537, lng: 77.9654 },
+  { name: "Vembar Market", lat: 9.0844, lng: 78.3332 },
+  { name: "Kilakkarai Market", lat: 9.2310, lng: 78.7853 },
+  { name: "Keelapavoor Market", lat: 8.8734, lng: 77.5391 },
+  { name: "Kurumbur Market", lat: 8.6107, lng: 78.0723 }
+],
+Tiruchirappalli: [
+  { name: "Trichy Main Market", lat: 10.7905, lng: 78.7047 },
+  { name: "Srirangam Market", lat: 10.8622, lng: 78.6851 },
+  { name: "Thuvakudi Market", lat: 10.7655, lng: 78.8133 },
+  { name: "Manapparai Market", lat: 10.6073, lng: 78.4253 },
+  { name: "Musiri Market", lat: 11.0696, lng: 78.4310 },
+  { name: "Lalgudi Market", lat: 10.8782, lng: 78.8233 },
+  { name: "Thuraiyur Market", lat: 11.1063, lng: 78.5997 },
+  { name: "Jeeyapuram Market", lat: 10.8311, lng: 78.6333 },
+  { name: "Woraiyur Market", lat: 10.7986, lng: 78.6715 },
+  { name: "Samayapuram Market", lat: 10.9331, lng: 78.7556 },
+  { name: "Pettavaithalai Market", lat: 10.8355, lng: 78.4456 },
+],
+Tirupathur: [
+        { name: "Vaniyambadi Fish Market", lat: 12.6856, lng: 78.6201 },
+        { name: "Tirupathur Town Market", lat: 12.4991, lng: 78.5694 },
+        { name: "Natrampalli Market", lat: 12.6456, lng: 78.5732 },
+        { name: "Jolarpettai Market", lat: 12.5804, lng: 78.5753 },
+        { name: "Ambur Market", lat: 12.7902, lng: 78.7154 },
+        { name: "Udayendram Market", lat: 12.7356, lng: 78.6921 },
+        { name: "Kethandapatti Market", lat: 12.7054, lng: 78.6521 },
+        { name: "Pernambut Market", lat: 12.9315, lng: 78.7053 },
+        { name: "Kuppam Road Market", lat: 12.4721, lng: 78.5231 },
+        { name: "Mothakkal Market", lat: 12.6999, lng: 78.6490 }
+      ],
+
+      Tiruppur: [
+        { name: "Tiruppur Central Market", lat: 11.1085, lng: 77.3411 },
+        { name: "Dharapuram Market", lat: 10.7352, lng: 77.5325 },
+        { name: "Avinashi Market", lat: 11.1928, lng: 77.2720 },
+        { name: "Kangeyam Market", lat: 11.0024, lng: 77.5604 },
+        { name: "Udumalpet Market", lat: 10.5883, lng: 77.2500 },
+        { name: "Palladam Market", lat: 10.9912, lng: 77.2866 },
+        { name: "Mangalam Market", lat: 11.0350, lng: 77.3213 },
+        { name: "Uthukuli Market", lat: 11.1708, lng: 77.4550 },
+        { name: "Somanur Market", lat: 11.0967, lng: 77.1974 },
+        { name: "Kundadam Market", lat: 10.7152, lng: 77.4789 }
+      ],
+       Tiruvallur: [
+        { name: "Tiruvallur Main Market", lat: 13.1444, lng: 79.9089 },
+        { name: "Pattabiram Market", lat: 13.1192, lng: 79.9632 },
+        { name: "Avadi Fish Market", lat: 13.1173, lng: 80.0997 },
+        { name: "Tiruverkadu Market", lat: 13.0706, lng: 80.1090 },
+        { name: "Red Hills Market", lat: 13.1821, lng: 80.1841 },
+        { name: "Ponneri Market", lat: 13.3266, lng: 80.1925 },
+        { name: "Minjur Market", lat: 13.2783, lng: 80.2582 },
+        { name: "Tiruninravur Market", lat: 13.1147, lng: 79.9635 },
+        { name: "Manavalanagar Market", lat: 13.1090, lng: 79.9091 },
+        { name: "Veppampattu Market", lat: 13.1205, lng: 79.9372 }
+      ],
+
+      Tiruvannamalai: [
+        { name: "Tiruvannamalai Main Market", lat: 12.2294, lng: 79.0747 },
+        { name: "Polur Market", lat: 12.5117, lng: 79.1278 },
+        { name: "Arani Market", lat: 12.6643, lng: 79.2859 },
+        { name: "Chetpet Market", lat: 12.4043, lng: 79.2632 },
+        { name: "Kalasapakkam Market", lat: 12.4450, lng: 79.0610 },
+        { name: "Chengam Market", lat: 12.2508, lng: 78.8015 },
+        { name: "Kilpennathur Market", lat: 12.1932, lng: 79.1874 },
+        { name: "Kannamangalam Market", lat: 12.6407, lng: 79.2526 },
+        { name: "Vandavasi Market", lat: 12.5057, lng: 79.6026 },
+        { name: "Desur Market", lat: 12.1571, lng: 79.2291 }
+      ],
+      Tiruvarur: [
+        { name: "Tiruvarur Town Market", lat: 10.7712, lng: 79.6365 },
+        { name: "Mannargudi Market", lat: 10.6667, lng: 79.4500 },
+        { name: "Kodavasal Market", lat: 10.8239, lng: 79.5816 },
+        { name: "Koradacheri Market", lat: 10.7569, lng: 79.5539 },
+        { name: "Needamangalam Market", lat: 10.7900, lng: 79.4180 },
+        { name: "Valangaiman Market", lat: 10.7500, lng: 79.4400 },
+        { name: "Nannilam Market", lat: 10.8821, lng: 79.6131 },
+        { name: "Koothanallur Market", lat: 10.7167, lng: 79.5386 },
+        { name: "Thiruthuraipoondi Market", lat: 10.5300, lng: 79.6300 },
+        { name: "Alangudi Market", lat: 10.4741, lng: 79.4936 }
+      ],
+      Vellore: [
+        { name: "Vellore Town Market", lat: 12.9165, lng: 79.1325 },
+        { name: "Katpadi Market", lat: 12.9800, lng: 79.1381 },
+        { name: "Gudiyatham Market", lat: 12.9492, lng: 78.8714 },
+        { name: "Arcot Market", lat: 12.9056, lng: 79.3331 },
+        { name: "Arakkonam Market", lat: 13.0846, lng: 79.6715 },
+        { name: "Walajapet Market", lat: 12.9264, lng: 79.3703 },
+        { name: "Sholinghur Market", lat: 13.1172, lng: 79.4336 },
+        { name: "Ranipet Market", lat: 12.9432, lng: 79.3334 },
+        { name: "Pernambut Market", lat: 12.9333, lng: 78.7167 },
+        { name: "Vaniyambadi Market", lat: 12.6833, lng: 78.6167 }
+      ],
+        Villuppuram: [
+        { name: "Villupuram Town Market", lat: 11.7518, lng: 79.7714 },
+        { name: "Gingee Market", lat: 12.2542, lng: 79.4173 },
+        { name: "Tindivanam Market", lat: 12.2489, lng: 79.6486 },
+        { name: "Kallakurichi Market", lat: 11.7387, lng: 78.9629 },
+        { name: "Ulundurpet Market", lat: 11.7019, lng: 79.3305 },
+        { name: "Valavanur Market", lat: 11.8235, lng: 79.6415 },
+        { name: "Koliyanur Market", lat: 11.7454, lng: 79.7334 },
+        { name: "Marakkanam Market", lat: 12.1956, lng: 79.9485 },
+        { name: "Mailam Market", lat: 12.0231, lng: 79.5881 },
+        { name: "Thiruvennainallur Market", lat: 11.7031, lng: 79.4704 }
+      ],
+      Virudhunagar: [
+        { name: "Virudhunagar Town Market", lat: 9.5851, lng: 77.9579 },
+        { name: "Sivakasi Market", lat: 9.4498, lng: 77.7974 },
+        { name: "Rajapalayam Market", lat: 9.4520, lng: 77.5530 },
+        { name: "Sattur Market", lat: 9.3629, lng: 77.9254 },
+        { name: "Aruppukkottai Market", lat: 9.5083, lng: 78.0953 },
+        { name: "Tiruchuli Market", lat: 9.5054, lng: 78.1231 },
+        { name: "Vembakottai Market", lat: 9.3915, lng: 77.8013 },
+        { name: "Watrap Market", lat: 9.5628, lng: 77.6140 },
+        { name: "Kariapatti Market", lat: 9.5083, lng: 78.0961 },
+        { name: "Mallankinaru Market", lat: 9.5995, lng: 78.0112 }
+      ],
+      Pondicherry: [
+        { name: "Goubert Market", lat: 11.9362, lng: 79.8345 },
+        { name: "Pondy Bazaar Market", lat: 11.9370, lng: 79.8292 },
+        { name: "Lawspet Fish Market", lat: 11.9486, lng: 79.8023 },
+        { name: "Muthialpet Market", lat: 11.9545, lng: 79.8217 },
+        { name: "Reddiarpalayam Market", lat: 11.9361, lng: 79.8131 },
+        { name: "Orleanpet Market", lat: 11.9335, lng: 79.8312 },
+        { name: "Ariyankuppam Market", lat: 11.8896, lng: 79.8162 },
+        { name: "Boomianpet Market", lat: 11.9398, lng: 79.8235 },
+        { name: "Karuvadikuppam Market", lat: 11.9452, lng: 79.8051 },
+        { name: "Kuruchikuppam Market", lat: 11.9421, lng: 79.8373 },
+        { name: "Villianur Market", lat: 11.8941, lng: 79.7653 },
+        { name: "Saram Market", lat: 11.9348, lng: 79.8216 },
+        { name: "Odiampet Market", lat: 11.9182, lng: 79.7635 },
+        { name: "Kottupalayam Market", lat: 11.9627, lng: 79.7959 },
+        { name: "Murungapakkam Market", lat: 11.9205, lng: 79.8199 },
+        { name: "Thavalakuppam Market", lat: 11.8672, lng: 79.8130 },
+        { name: "Thattanchavady Market", lat: 11.9363, lng: 79.8127 },
+        { name: "ECR Road Fish Market", lat: 11.9244, lng: 79.8298 },
+        { name: "Chinna Kalapet Market", lat: 11.9811, lng: 79.8205 },
+        { name: "Kuilapalayam Market", lat: 12.0060, lng: 79.8501 },
+        { name: "Periyakalapet Market", lat: 11.9932, lng: 79.8152 },
+        { name: "Vaithikuppam Market", lat: 11.9444, lng: 79.8381 }
+      ]
+      
+    };
+
+    function searchMarkets() {
+      const district = document.getElementById('districtInput').value;
+      const fish = document.getElementById('fishSelect').value;
+      const mapDiv = document.getElementById('map');
+      mapDiv.innerHTML = "";
+      const marketList = realMarkets[district];
+      const resultsDiv = document.getElementById('results');
+      if (!marketList) {
+        resultsDiv.innerHTML = `<p>No markets found in ${district}</p>`;
+        return;
+      }
+      
+const map = L.map('map').setView([10.7905, 78.7047], 7);
+
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+map.locate({ setView: true, maxZoom: 12 });
+
+
+function onLocationFound(e) {
+  const radius = e.accuracy;
+
+  L.marker(e.latlng).addTo(map)
+    .bindPopup("📍 You are here").openPopup();
+
+  L.circle(e.latlng, {
+    radius: radius,
+    color: "#136aec",
+    fillColor: "#136aec",
+    fillOpacity: 0.3
+  }).addTo(map);
+}
+
+
+function onLocationError(e) {
+  alert("Location access denied or unavailable.");
+}
+
+map.on('locationfound', onLocationFound);
+map.on('locationerror', onLocationError);
+
+      let bestPrice = -Infinity;
+let bestMarket = null;
+let bestLatLng = null;
+marketList.forEach(market => {
+  const price = Math.floor(100 + Math.random() * 200);
+  const marker = L.marker([market.lat, market.lng]).addTo(map);
+  marker.bindPopup(`<b>${market.name}</b><br>Price: ₹${price}/kg for ${fish}`);
+  if (price > bestPrice) {
+    bestPrice = price;
+    bestMarket = market.name;
+    bestLatLng = [market.lat, market.lng];
+  }
+});
+if (bestLatLng) {
+  const bestMarker = L.marker(bestLatLng, {
+    icon: L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png', // Green star
+      iconSize: [30, 45],
+      iconAnchor: [15, 45],
+      popupAnchor: [1, -34]
+    })
+  }).addTo(map);
+
+  bestMarker.bindPopup(`<b>🔥 Most Profitable Market: ${bestMarket}</b><br>Highest Price: ₹${bestPrice}/kg for ${fish}`).openPopup();
+
+  const profitableDiv = document.createElement('div');
+  profitableDiv.className = 'top-price-line';
+  profitableDiv.innerHTML = `🌟 <strong>Most Profitable Market:</strong> ${bestMarket}<br>💰 Price: ₹${bestPrice}/kg for ${fish}`;
+  resultsDiv.insertBefore(profitableDiv, resultsDiv.firstChild);
+}
+
+
+      if (bestMarker) {
+        bestMarker.openPopup();
+      }
+
+      resultsDiv.innerHTML = `<h3>Markets found in ${district}</h3>`;
+    }
+  function login() {
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+
+    
+    if (user && pass) {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('appPage').style.display = 'block';
+    } else {
+      alert("Please enter both username and password.");
+    }
+  }
+  </script>
+</body>
+</html>
